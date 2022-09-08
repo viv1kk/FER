@@ -1,7 +1,9 @@
-
-import json
+import io
+import base64
 from flask import Flask, render_template, request, Response, send_file,jsonify
 import cv2
+import numpy as np
+from PIL import Image
  
 app = Flask(__name__)
 
@@ -19,18 +21,13 @@ def generate_frames():
         yield(b'--frame\r\n'b'Content-Type: image/png\r\n\r\n'+frame+b'\r\n') 
 
 
-# def getCapture():
-#         # read the camera frame
-#         success, frame = camera.read()
-#         if success:
-#             print("shjasfhj")
-#             # x, frame = cv2.imencode('.jpg', frame)
-#             # cv2.imshow("", frame)
-#             # cv2.imshow("", frame)
-#             # cv2.waitKey(0)
-#             # cv2.destroyWindow(frame)
+def stringToImage(base64_string):
+    imgdata = base64.b64decode(base64_string)
+    return Image.open(io.BytesIO(imgdata))
 
-#             return frame
+# convert PIL Image to an RGB image( technically a numpy array ) that's compatible with opencv
+def toRGB(image):
+    return cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
 
 @app.route('/', methods = ['POST','GET'])
 def index():
@@ -40,17 +37,20 @@ def index():
 def video():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# @app.route('/Click', methods = ['POST','GET'])
-# def snapshot():
-#     img = getCapture()
-
-#     # x, img = cv2.imencode('.jpg', img)
-#     list = img.tolist()
-#     # list = [1,2,3,4]
-#     return jsonify(list)
-
 @app.route('/send', methods = ['POST','GET'])
 def send():
+
+    #getting the data in byte64
+    data = request.data
+    #converted the data in image
+    img = stringToImage(data)
+    #converted to opencv compatible image
+    img = toRGB(img)
+    
+    cv2.imshow("", img)
+    cv2.waitKey(0)
+    cv2.destroyWindow(img)
+    
     return Response("hELLo")
 
 

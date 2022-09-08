@@ -11,7 +11,6 @@
     <div id = "content">
         <img src="{{url_for('video')}}", id = "video"/>
         <canvas id="canvas" style="border:1px solid #000000;"></canvas>
-        <!-- <img src="{{img}}" alt="CLickkkll" id="frame"> -->
     </div>
     <div>
         <button id = 'snapShot' onclick = "snap()">Snap</button>
@@ -39,6 +38,8 @@
 
     function snap()
     {
+
+        // Copying the video frame to the canvas
         canv.width = vid.naturalWidth;
         canv.height = vid.naturalHeight;
         canv.getContext('2d').drawImage(vid, 0,0)
@@ -46,6 +47,16 @@
 
     function send()
     {
+        // converts canvas data into ASCII form, its easier to send the image data this way
+        let dataURL = canv.toDataURL();
+        console.log(dataURL)
+        
+        const getBase64StringFromDataURL = (dataURL) =>
+        dataURL.replace('data:', '').replace(/^.+,/, '');
+
+        dataURL = getBase64StringFromDataURL(dataURL)
+        console.log(dataURL)
+
         const xhr = new XMLHttpRequest()
         xhr.addEventListener('readystatechange',()=>{
             if(xhr.readyState == 4 && xhr.status == 200)
@@ -54,8 +65,9 @@
                 console.log(xhr.responseText)
             }
         })
-        xhr.open("POST", '/send', false)
-        xhr.send(null)
+        xhr.open("POST", '/send', true)
+        xhr.setRequestHeader("Content-Type", "text/plain");
+        xhr.send(dataURL)
     }
 
 </script>
