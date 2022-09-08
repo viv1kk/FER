@@ -1,0 +1,13 @@
+body{
+    margin: 0;
+    color:white;
+    font-family: sans-serif;
+    background-color: rgb(37, 35, 35);
+}
+
+
+#content{
+    display: flex;
+    margin-top: 30px;
+    justify-content: space-evenly;
+}

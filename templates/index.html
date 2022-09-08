@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Face Recognition</title>
+{% endblock %}
+
+
+{% block body %}
+<header></header>
+<div>
+    <div id = "content">
+        <img src="{{url_for('video')}}", id = "video"/>
+        <canvas id="canvas" style="border:1px solid #000000;"></canvas>
+        <!-- <img src="{{img}}" alt="CLickkkll" id="frame"> -->
+    </div>
+    <div>
+        <button id = 'snapShot' onclick = "snap()">Snap</button>
+        <button id = 'send' onclick = "send()">Send</button>
+    </div>
+    <div>
+        <p id = "Result">REsult</p>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('resize', setCanvasWidth, true)
+    let vid = document.getElementById("video")
+    let canv = document.getElementById("canvas")
+    let res = document.getElementById("Result")
+
+    function setCanvasWidth()
+    {
+        canv.style.width = vid.naturalWidth;
+        canv.style.height = vid.naturalWidth;
+        // console.log(vid.height , vid.width)
+    }
+    setCanvasWidth()
+
+
+    function snap()
+    {
+        canv.width = vid.naturalWidth;
+        canv.height = vid.naturalHeight;
+        canv.getContext('2d').drawImage(vid, 0,0)
+    }
+
+    function send()
+    {
+        const xhr = new XMLHttpRequest()
+        xhr.addEventListener('readystatechange',()=>{
+            if(xhr.readyState == 4 && xhr.status == 200)
+            {
+                res.innerHTML = xhr.responseText
+                console.log(xhr.responseText)
+            }
+        })
+        xhr.open("POST", '/send', false)
+        xhr.send(null)
+    }
+
+</script>
+{% endblock %}
