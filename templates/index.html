@@ -10,14 +10,16 @@
 <div>
     <div id = "content">
         <img src="{{url_for('video')}}", id = "video"/>
-        <canvas id="canvas" style="border:1px solid #000000;"></canvas>
+        <canvas id="canvas" style="border:1px solid #000000;">
+        <!-- </canvas><canvas id="canvas1" style="border:1px solid #000000;"></canvas> -->
     </div>
     <div>
         <button id = 'snapShot' onclick = "snap()">Snap</button>
-        <button id = 'send' onclick = "send()">Send</button>
+        <button id = 'send' onclick = "send(vid)">Send</button>
     </div>
     <div>
-        <p id = "Result">REsult</p>
+
+        <img id = "Result"/>
     </div>
 </div>
 
@@ -25,20 +27,24 @@
     window.addEventListener('resize', setCanvasWidth, true)
     let vid = document.getElementById("video")
     let canv = document.getElementById("canvas")
+    let canv1 = document.getElementById("canvas1")
     let res = document.getElementById("Result")
-
+    console.log(res)
+    
+    let responseImage;
     function setCanvasWidth()
     {
         canv.style.width = vid.naturalWidth;
         canv.style.height = vid.naturalWidth;
+        // canv1.style.width = vid.naturalWidth;
+        // canv1.style.height = vid.naturalWidth;
         // console.log(vid.height , vid.width)
     }
-    setCanvasWidth()
+    // setCanvasWidth()
 
 
     function snap()
     {
-
         // Copying the video frame to the canvas
         canv.width = vid.naturalWidth;
         canv.height = vid.naturalHeight;
@@ -47,28 +53,45 @@
 
     function send()
     {
+
         // converts canvas data into ASCII form, its easier to send the image data this way
         let dataURL = canv.toDataURL();
-        console.log(dataURL)
+        // console.log(dataURL)
         
         const getBase64StringFromDataURL = (dataURL) =>
         dataURL.replace('data:', '').replace(/^.+,/, '');
 
         dataURL = getBase64StringFromDataURL(dataURL)
-        console.log(dataURL)
+        // console.log(dataURL)
 
         const xhr = new XMLHttpRequest()
         xhr.addEventListener('readystatechange',()=>{
             if(xhr.readyState == 4 && xhr.status == 200)
             {
-                res.innerHTML = xhr.responseText
-                console.log(xhr.responseText)
+                responseImage = xhr.responseText;
+                responseImage = 'data:image/png;base64,'+responseImage
+                // res.src = responseImage;
+                updatecanv(responseImage)
+                // console.log(responseImage)
+                // // res.innerHTML = xhr.responseText
+ 
             }
         })
-        xhr.open("POST", '/send', true)
-        xhr.setRequestHeader("Content-Type", "text/plain");
+        xhr.open("POST", '/send', false)
         xhr.send(dataURL)
+        
     }
+    function updatecanv(r)
+    {
+        let img = new Image()
+        img.src = r;
+        img.onload = ()=>{
+        //     console.log(img)
+            canv.getContext('2d').drawImage(img,0,0);
+        };
+    }
+
+
 
 </script>
 {% endblock %}
